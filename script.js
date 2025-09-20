@@ -1,3 +1,72 @@
+// 在原有RKS计算后添加理论值加成
+function calculateSongRKS() {
+    // 首先获取原有的RKS值
+    const baseRKS = stat.RTR;
+    
+    // 检查是否达到理论值
+    const isAutoPlay = typeof app !== 'undefined' && app && app.playMode === 1;
+    const isAllPerfect = (stat.perfect + stat.good) === stat.numOfNotes;
+    const isMaxTheoretical = stat.scoreNum === (1000000 + stat.numOfNotes);
+    const isTheoretical = isAutoPlay || (isAllPerfect && isMaxTheoretical);
+    
+    // 如果达到理论值，额外加1.00
+    if (isTheoretical) {
+        return baseRKS + 1.00;
+    }
+    
+    return baseRKS;
+}
+
+// 修改drawSongRKS函数使用新的计算
+function drawSongRKS() {
+    if (qwqEnd.second <= 0) return;
+    
+    ctxos.save();
+    
+    const lineScale = app.lineScale;
+    const leftX = lineScale * 0.5;
+    const topY = lineScale * 0.5;
+    const width = lineScale * 5;
+    const height = lineScale * 2;
+    
+    // 获取基础RKS
+    let songRKS = stat.RTR;
+    
+    // 检查并添加理论值加成
+    const isAutoPlay = app && app.playMode === 1;
+    const isAllPerfect = (stat.perfect + stat.good) === stat.numOfNotes;
+    const isMaxTheoretical = stat.scoreNum === (1000000 + stat.numOfNotes);
+    const isTheoretical = isAutoPlay || (isAllPerfect && isMaxTheoretical);
+    
+    if (isTheoretical) {
+        songRKS += 1.00;
+    }
+    
+    // 如果是理论值，显示金色边框
+    if (isTheoretical) {
+        ctxos.strokeStyle = '#ffeca0';
+        ctxos.lineWidth = 2;
+        ctxos.beginPath();
+        ctxos.roundRect(leftX, topY, width, height, 10);
+        ctxos.stroke();
+    }
+    
+    ctxos.globalAlpha = range(qwqEnd.second * 1.5);
+    
+    // RKS数值
+    ctxos.fillStyle = isTheoretical ? '#ffeca0' : '#ffffff';
+    ctxos.font = `bold ${lineScale * 0.9}px Saira, SyHybrid, Noto Sans SC`;
+    ctxos.textAlign = 'left';
+    ctxos.textBaseline = 'top';
+    ctxos.fillText(songRKS.toFixed(2), leftX + lineScale * 0.3, topY + lineScale * 0.2);
+    
+    // 单曲RKS文字
+    ctxos.fillStyle = '#22ac0dff';
+    ctxos.font = `bold ${lineScale * 0.5}px Saira, SyHybrid, Noto Sans SC`;
+    ctxos.fillText('单曲RKS', leftX + lineScale * 0.3, topY + lineScale * 1.0);
+    
+    ctxos.restore();
+}
 import simphi from './js/simphi.js';
 import { audio } from './utils/aup.js';
 import { full, Timer, getConstructorName, urls, isUndefined, loadJS, frameTimer, time2Str, orientation, FrameAnimater } from './js/common.js';
@@ -650,6 +719,7 @@ const judgeManager = {
 							noteJudge.holdStatus = 5; //console.log('Perfect(Early)', i.name);
 							hitImageList.add(HitImage.perfect(noteJudge.projectX, noteJudge.projectY));
 							hitWordList.add(HitWord.early(noteJudge.projectX, noteJudge.projectY));
+							stat.EP ++;
 						} else if (deltaTime2 > -0.04 || noteJudge.frameCount < 1) {
 							noteJudge.holdStatus = 4; //console.log('Perfect(Max)', i.name);
 							stat.maxperfect++;
@@ -658,6 +728,7 @@ const judgeManager = {
 							noteJudge.holdStatus = 1; //console.log('Perfect(Late)', i.name);
 							hitImageList.add(HitImage.perfect(noteJudge.projectX, noteJudge.projectY));
 							hitWordList.add(HitWord.late(noteJudge.projectX, noteJudge.projectY));
+							stat.LP ++;
 						} else {
 							noteJudge.holdStatus = 3; //console.log('Good(Late)', i.name);
 							hitImageList.add(HitImage.good(noteJudge.projectX, noteJudge.projectY));
@@ -1417,44 +1488,6 @@ function qwqdraw3(statData) {
 	ctxos.drawImage(res["LevelOver3"], -1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 1900, 715, 950, 190);
 	ctxos.globalAlpha = 1;
 	ctxos.drawImage(res["LevelOver4"], -1920 * tween.ease10(range(qwqEnd.second * 1)) + 1694, 137, 1616, 804);
-	function drawSongRKS() {
-    	if (qwqEnd.second <= 0) return;
-    
-    	ctxos.save();
-    
-    	const lineScale = app.lineScale;
-    
-    // 使用 RKS 图片的位置和尺寸
-    	const rksImage = res["RKS"];
-    	if (!rksImage) {
-        	console.warn('RKS图片未找到');
-        	ctxos.restore();
-        	return;
-    	}
-    
-    // 图片位置（右上角）
-    	const rightX = canvasos.width - lineScale * 2.5;
-    	const topY = lineScale * 2.5;
-    	const width = lineScale * 3.6;  // 图片宽度
-    	const height = lineScale * 3.6; // 图片高度
-    
-    	const songRKS = stat.RTR;
-    
-    // 设置透明度
-    	ctxos.globalAlpha = range(qwqEnd.second * 1.5);
-    
-    // 绘制RKS背景图片
-    	ctxos.drawImage(rksImage, rightX - width/2, topY - height/2, width, height);
-    
-    // 在图片上绘制RKS数值
-    	ctxos.fillStyle = '#ffffff';
-    	ctxos.font = `bold ${lineScale * 0.9}px Saira, SyHybrid, Noto Sans SC`;
-    	ctxos.textAlign = 'center';
-    	ctxos.textBaseline = 'middle';
-    	ctxos.fillText(songRKS.toFixed(2), rightX, topY);
-    
-    	ctxos.restore();
-	}	
 	//等级/曲名
 	ctxos.globalAlpha = 1;
 	ctxos.restore();
@@ -2138,6 +2171,8 @@ async function qwqStop() {
 		duration = 0;
         stat.maxperfect = 0;
 		stat.flick = 0;
+		stat.LP = 0;
+		stat.EP = 0;
 		stat.drag = 0;
 	}
 }

@@ -10,10 +10,12 @@ class Stat {
         this.numDisp = 0;
         this.maxcombo = 0;
         this.combo = 0;
-        this.maxperfect = 0;
+        this.fect = 0;
         this.score = 0;
 		this.flick = 0;
 		this.drag = 0
+		this.EP = 0;
+		this.LP = 0;
         // 确保这里没有调用 getTheoreticalValue
     }
     
@@ -39,7 +41,10 @@ class Stat {
     	const FirstNum = (this.accNum * 100);
     	const SecondNum = ((FirstNum - 55)/45);
     	const ThirdNum = SecondNum * SecondNum;
-    	return SecondNum > 0 ? Number(ThirdNum) * this.level : Number(0 - ThirdNum) * this.level;
+    
+    	// 使用谱面定数而不是selectLevel
+    	const chartLevelValue = ChartLevel ? Number(ChartLevel.value) : (this.level || 1);
+    	return SecondNum > 0 ? Number(ThirdNum) * chartLevelValue : Number(0 - ThirdNum) * chartLevelValue;
 	}
 	get good() {
 		return this.noteRank[7] + this.noteRank[3];
