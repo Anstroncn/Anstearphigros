@@ -1455,7 +1455,7 @@ function qwqdraw3(statData) {
     
     	ctxos.restore();
 	}	
-	//姝屽悕鍜岀瓑绾�
+	//等级/曲名
 	ctxos.globalAlpha = 1;
 	ctxos.restore();
 	ctxos.setTransform(qwq0 / 120, 0, 0, qwq0 / 120, app.wlen - qwq0 * 8, app.hlen - qwq0 * 4.5); //?
@@ -1472,7 +1472,7 @@ function qwqdraw3(statData) {
 	ctxos.textAlign = "right";
 	ctxos.fillText(levelText, -1920 * tween.ease10(range(qwqEnd.second * 1)) + 2830, 825);
 	ctxos.textAlign = "left";
-	//Rank鍥炬爣
+	//Rank图标
 	ctxos.globalAlpha = range((qwqEnd.second - 1.3) * 3.75);
 	const qwq2 = 293 + range((qwqEnd.second - 1.3) * 3.75) * 100;
 	const qwq3 = 410 - tween.ease15(range((qwqEnd.second - 1.3) * 1.5)) * 164;
@@ -1482,7 +1482,7 @@ function qwqdraw3(statData) {
 	if (showTheoreticalRank && res["APP"]) {
     // 理论值特殊Rank - APP图标带发光
     	const pulseGlow = 15 + Math.sin(qwqEnd.second * 0.05) * 10;
-    	ctxos.shadowColor = '#ffeca0';
+    	ctxos.shadowColor = '#a0e1ffff';
     	ctxos.shadowBlur = pulseGlow;
     	ctxos.drawImage(res["APP"], 1693 - qwq3, 373 - qwq3, qwq3 * 2, qwq3 * 2);
     	ctxos.shadowColor = 'transparent';
@@ -1494,7 +1494,7 @@ function qwqdraw3(statData) {
     // 普通Rank图标
     	ctxos.drawImage(res["Ranks"][stat.rankStatus], 1693 - qwq3, 373 - qwq3, qwq3 * 2, qwq3 * 2);
 	}
-	//鍑嗗害鍜岃繛鍑�
+	//新纪录
 	ctxos.globalAlpha = range((qwqEnd.second - 0.4) * 2.50);
 	ctxos.fillStyle = "#fff";
 	ctxos.font = "25px Saira,SyHybrid,Noto Sans SC";
@@ -1503,7 +1503,6 @@ function qwqdraw3(statData) {
 	ctxos.textAlign = "left";
 	ctxos.fillText(statData.scoreBest, -1720 * tween.ease10(range(qwqEnd.second - 0.1)) + 3005, 485);
 	// 	ctxos.globalAlpha = range((qwqEnd.second - 1.87) * 2.50);
-// 找到显示分数的代码
 	ctxos.fillText(statData.scoreDelta, -1720 * tween.ease10(range(qwqEnd.second - 0.1)) + 3140, 485);
 	ctxos.font = "50px Saira,SyHybrid,Noto Sans SC";
 	ctxos.textAlign = "right";
@@ -1515,7 +1514,7 @@ function qwqdraw3(statData) {
 	ctxos.fillText(stat.maxcombo, -1020 * tween.ease10(range(qwqEnd.second * 0.9 - 0.25)) + 2100, 635);
 	ctxos.font = "26px Saira,SyHybrid,Noto Sans SC";
 	ctxos.fillText("Max Combo", -1020 * tween.ease10(range(qwqEnd.second * 0.9 - 0.25)) + 2095, 670);
-	//鍒嗘暟
+	//动画
 	ctxos.fillStyle = "#fff";
 	ctxos.textAlign = "left";
 	ctxos.font = "86px Saira,SyHybrid,Noto Sans SC";
@@ -1549,6 +1548,10 @@ function qwqdraw3(statData) {
 		ctxos.textAlign = "center";
 		ctxos.globalAlpha = range((qwqEnd.second - 1.25) * 2.50);
 		ctxos.fillText(stat.perfect, -1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 2085, 805);
+		ctxos.font = "20px Saira,SyHybrid,Noto Sans SC";
+		ctxos.fillText("+",-1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 2150, 805);
+		ctxos.fillText(stat.maxperfect + stat.flick + stat.drag,-1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 2180, 805);
+		ctxos.font = "43px Saira,SyHybrid,Noto Sans SC";
 		ctxos.fillText(stat.good, -1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 2233, 805);
 		ctxos.fillText(stat.noteRank[6], -1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 2340, 805);
 		ctxos.fillText(stat.noteRank[2], -1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 2447, 805);
