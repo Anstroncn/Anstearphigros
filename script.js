@@ -1473,6 +1473,7 @@ function qwqdraw3(statData) {
 	ctxos.fillText(levelText, -1920 * tween.ease10(range(qwqEnd.second * 1)) + 2830, 825);
 	ctxos.textAlign = "left";
 	//Rank图标
+	const isAllPerfect = (stat.perfect + stat.good) === stat.numOfNotes;
 	ctxos.globalAlpha = range((qwqEnd.second - 1.3) * 3.75);
 	const qwq2 = 293 + range((qwqEnd.second - 1.3) * 3.75) * 100;
 	const qwq3 = 410 - tween.ease15(range((qwqEnd.second - 1.3) * 1.5)) * 164;
@@ -1521,7 +1522,6 @@ function qwqdraw3(statData) {
 	ctxos.globalAlpha = range((qwqEnd.second - 0.4) * 2.00);
 	// 检查是否达到理论值
 	const isMaxTheoretical = stat.scoreNum === (1000000 + stat.numOfNotes);
-	const isAllPerfect = (stat.perfect + stat.good) === stat.numOfNotes;
 	const showGlowEffect = isAllPerfect && isMaxTheoretical;
 
 	const scoreX = -1720 * tween.ease10(range(qwqEnd.second - 0.1)) + 2845;
