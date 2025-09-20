@@ -912,6 +912,8 @@ document.addEventListener('DOMContentLoaded', async function qwq() {
 			LevelOver4: "./src/LevelOver4.png|8080",
 			LevelOver5: "./src/LevelOver5.png|8080",
 			Rank: "./src/Rank.png|8080",
+			RKS: './src/rks.png',
+			APP: '/src/APP.png',
 			Pause: "./src/PauseNew.png|8080"
 		},
 		audio: {
@@ -1265,7 +1267,34 @@ function loopCanvas() { //尽量不要在这里出现app
 	ctxos.setTransform(1, 0, 0, 1, 0, lineScale * (qwqIn.second < 0.67 ? (tween.easeOutSine(qwqIn.second * 1.5) - 1) : -tween.easeOutSine(qwqOut.second * 1.5)) * 1.75);
 	ctxos.font = `${lineScale * 0.95}px Saira,Saira`;
 	ctxos.textAlign = 'right';
-	ctxos.fillText(stat.scoreStr, canvasos.width - lineScale * 0.65, lineScale * 1.375); //分数位置
+	// 检查是否达到理论值
+	const isMaxTheoretical = stat.scoreNum === (1000000 + stat.numOfNotes);
+	const isAllPerfect = (stat.perfect + stat.good) === stat.numOfNotes;
+	const showGlowEffect = isAllPerfect && isMaxTheoretical;
+
+// 设置坐标
+	const scoreX = canvasos.width - lineScale * 0.65;
+	const scoreY = lineScale * 1.375;
+
+	if (showGlowEffect) {
+    // 保存原始状态
+    	const originalShadowColor = ctxos.shadowColor;
+    	const originalShadowBlur = ctxos.shadowBlur;
+    
+    // 设置发光效果
+    	ctxos.shadowColor = '#ffeca0'; // 金色发光
+    	ctxos.shadowBlur = 15; // 发光大小
+    
+    // 绘制发光文本
+    	ctxos.fillText(stat.scoreStr, scoreX, scoreY);
+    
+    // 恢复原始状态
+    	ctxos.shadowColor = originalShadowColor;
+    	ctxos.shadowBlur = originalShadowBlur;
+	} else {
+    // 普通文本
+    	ctxos.fillText(stat.scoreStr, scoreX, scoreY);
+	}
 	ctxos.drawImage(res['Pause'], lineScale * 0.6, lineScale * 0.7, lineScale * 0.63, lineScale * 0.7);
 	if (showAcc.checked) {
 		ctxos.globalAlpha = 0.75;
@@ -1388,6 +1417,44 @@ function qwqdraw3(statData) {
 	ctxos.drawImage(res["LevelOver3"], -1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 1900, 715, 950, 190);
 	ctxos.globalAlpha = 1;
 	ctxos.drawImage(res["LevelOver4"], -1920 * tween.ease10(range(qwqEnd.second * 1)) + 1694, 137, 1616, 804);
+	function drawSongRKS() {
+    	if (qwqEnd.second <= 0) return;
+    
+    	ctxos.save();
+    
+    	const lineScale = app.lineScale;
+    
+    // 使用 RKS 图片的位置和尺寸
+    	const rksImage = res["RKS"];
+    	if (!rksImage) {
+        	console.warn('RKS图片未找到');
+        	ctxos.restore();
+        	return;
+    	}
+    
+    // 图片位置（右上角）
+    	const rightX = canvasos.width - lineScale * 2.5;
+    	const topY = lineScale * 2.5;
+    	const width = lineScale * 3.6;  // 图片宽度
+    	const height = lineScale * 3.6; // 图片高度
+    
+    	const songRKS = stat.RTR;
+    
+    // 设置透明度
+    	ctxos.globalAlpha = range(qwqEnd.second * 1.5);
+    
+    // 绘制RKS背景图片
+    	ctxos.drawImage(rksImage, rightX - width/2, topY - height/2, width, height);
+    
+    // 在图片上绘制RKS数值
+    	ctxos.fillStyle = '#ffffff';
+    	ctxos.font = `bold ${lineScale * 0.9}px Saira, SyHybrid, Noto Sans SC`;
+    	ctxos.textAlign = 'center';
+    	ctxos.textBaseline = 'middle';
+    	ctxos.fillText(songRKS.toFixed(2), rightX, topY);
+    
+    	ctxos.restore();
+	}	
 	//姝屽悕鍜岀瓑绾�
 	ctxos.globalAlpha = 1;
 	ctxos.restore();
@@ -1409,8 +1476,24 @@ function qwqdraw3(statData) {
 	ctxos.globalAlpha = range((qwqEnd.second - 1.3) * 3.75);
 	const qwq2 = 293 + range((qwqEnd.second - 1.3) * 3.75) * 100;
 	const qwq3 = 410 - tween.ease15(range((qwqEnd.second - 1.3) * 1.5)) * 164;
-	if (stat.lineStatus == 3) ctxos.drawImage(res["FCV"], 1693 - qwq3, 373 - qwq3, qwq3 * 2, qwq3 * 2);
-	else ctxos.drawImage(res["Ranks"][stat.rankStatus], 1693 - qwq3, 373 - qwq3, qwq3 * 2, qwq3 * 2);
+	const isAutoPlay = typeof app !== 'undefined' && app && app.playMode === 1;
+	const showTheoreticalRank = isAutoPlay || (isAllPerfect && isMaxTheoretical);
+
+	if (showTheoreticalRank && res["APP"]) {
+    // 理论值特殊Rank - APP图标带发光
+    	const pulseGlow = 15 + Math.sin(qwqEnd.second * 0.05) * 10;
+    	ctxos.shadowColor = '#ffeca0';
+    	ctxos.shadowBlur = pulseGlow;
+    	ctxos.drawImage(res["APP"], 1693 - qwq3, 373 - qwq3, qwq3 * 2, qwq3 * 2);
+    	ctxos.shadowColor = 'transparent';
+    	ctxos.shadowBlur = 0;
+	} else if (stat.lineStatus == 3 && res["FCV"]) {
+    // FCV图标
+    	ctxos.drawImage(res["FCV"], 1693 - qwq3, 373 - qwq3, qwq3 * 2, qwq3 * 2);
+	} else if (res["Ranks"] && res["Ranks"][stat.rankStatus]) {
+    // 普通Rank图标
+    	ctxos.drawImage(res["Ranks"][stat.rankStatus], 1693 - qwq3, 373 - qwq3, qwq3 * 2, qwq3 * 2);
+	}
 	//鍑嗗害鍜岃繛鍑�
 	ctxos.globalAlpha = range((qwqEnd.second - 0.4) * 2.50);
 	ctxos.fillStyle = "#fff";
@@ -1422,24 +1505,6 @@ function qwqdraw3(statData) {
 	// 	ctxos.globalAlpha = range((qwqEnd.second - 1.87) * 2.50);
 // 找到显示分数的代码
 	ctxos.fillText(statData.scoreDelta, -1720 * tween.ease10(range(qwqEnd.second - 0.1)) + 3140, 485);
-
-// 修改为使用发光效果
-	const scoreDelta = statData.scoreDelta;
-	const scoreX = -1720 * tween.ease10(range(qwqEnd.second - 0.1)) + 3140;
-	const scoreY = 485;
-
-// 检查是否达到理论值
-	const isMaxTheoretical = stat.scoreNum === (1000000 + stat.numOfNotes);
-	const isAutoPlay = typeof app !== 'undefined' && app && app.playMode === 1;
-	const isAllPerfect = (stat.perfect + stat.good) === stat.numOfNotes;
-
-	if ((isAutoPlay || isAllPerfect) && isMaxTheoretical) {
-    // 达到理论值，使用发光效果
-    	drawGlowingText(scoreDelta, scoreX, scoreY, '#ffffff', '#a0f7ffff', 15);
-	} else {
-    // 未达到理论值，使用普通文本
-    	ctxos.fillText(scoreDelta, scoreX, scoreY);
-	}
 	ctxos.font = "50px Saira,SyHybrid,Noto Sans SC";
 	ctxos.textAlign = "right";
 	ctxos.fillText(stat.accStr, -1020 * tween.ease10(range(qwqEnd.second * 0.9 - 0.25)) + 2749, 635);
@@ -1455,7 +1520,25 @@ function qwqdraw3(statData) {
 	ctxos.textAlign = "left";
 	ctxos.font = "86px Saira,SyHybrid,Noto Sans SC";
 	ctxos.globalAlpha = range((qwqEnd.second - 0.4) * 2.00);
-	ctxos.fillText(stat.scoreStr, -1720 * tween.ease10(range(qwqEnd.second - 0.1)) + 2845, 433);
+	// 检查是否达到理论值
+	const isMaxTheoretical = stat.scoreNum === (1000000 + stat.numOfNotes);
+	const isAllPerfect = (stat.perfect + stat.good) === stat.numOfNotes;
+	const showGlowEffect = isAllPerfect && isMaxTheoretical;
+
+	const scoreX = -1720 * tween.ease10(range(qwqEnd.second - 0.1)) + 2845;
+	const scoreY = 433;
+
+	if ((stat.perfect + stat.good) === stat.numOfNotes && stat.scoreNum === (1000000 + stat.numOfNotes)) {
+    // 脉冲发光效果
+    	const pulse = Math.sin(qwqEnd.second * 0.05) * 5 + 10; // 10-15之间波动
+    	ctxos.shadowColor = '#ffeca0';
+    	ctxos.shadowBlur = pulse;
+    	ctxos.fillText(stat.scoreStr, scoreX, scoreY);
+    	ctxos.shadowColor = 'transparent';
+    	ctxos.shadowBlur = 0;
+	} else {
+    	ctxos.fillText(stat.scoreStr, scoreX, scoreY);
+	}
 	ctxos.textAlign = "right";
 	ctxos.font = "25px Saira,SyHybrid,Noto Sans SC";
 	ctxos.fillStyle = "#83e691";
@@ -1513,6 +1596,7 @@ function qwqdraw3(statData) {
 				ctxos.globalAlpha = range((qwqEnd.second - 0.97) * 2.50) * qwq4;
 			}
 		}
+		drawSongRKS();
 		ctxos.textAlign = "right";
 		if (autoplay.checked) {} else {
 			ctxos.fillText(stat.noteRank[5], -1020 * tween.ease10(range(qwqEnd.second * 0.8 - 0.3)) + 2705, 800);
@@ -1542,6 +1626,7 @@ class NoteRender {
 			Flick: 'src/respack/flick.png',
 			FlickHL: 'src/respack/flick_mh.png',
 			FCV: 'src/FCV.png',
+			APP: 'src/app.png',
 			Hit_FX: 'src/hit_fx.png',
 			Hold: 'src/hold.png',
 			Hold_HL: 'src/hold_mh.png',
@@ -1552,6 +1637,7 @@ class NoteRender {
 			Rank: 'src/Rank.png',
 			LevelOver0_v2: './src/js1.ogg',
 			LevelOver1_v2: './src/js2.ogg',
+			RKS: './src/rks.png',
 			LevelOver2_v2: './src/js3.ogg',
 			LevelOver3_v2: './src/js4.ogg'
 		};

@@ -34,12 +34,12 @@ class Stat {
     }
 
 	
+// 修改 get RTR() 方法，使用 stat.level 而不是 selectLevel
 	get RTR() {
-	    const FirstNum = (this.accNum * 100);
-	    const SecondNum = ((FirstNum - 55)/45);
-	    const ThirdNum = SecondNum * SecondNum;
-	    return SecondNum > 0 ? Number(ThirdNum) * selectLevel.value  : Number(0 - ThirdNum) * selectLevel.value;
-	    //return ThirdNum * ChartLevel.value;
+    	const FirstNum = (this.accNum * 100);
+    	const SecondNum = ((FirstNum - 55)/45);
+    	const ThirdNum = SecondNum * SecondNum;
+    	return SecondNum > 0 ? Number(ThirdNum) * this.level : Number(0 - ThirdNum) * this.level;
 	}
 	get good() {
 		return this.noteRank[7] + this.noteRank[3];
