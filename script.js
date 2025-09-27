@@ -1,3 +1,17 @@
+let lastScore = 0;
+let nowScore = 0;
+let dynamicTime = 0;
+function hack() {
+  const { numOfNotes } = app.chart;
+  stat.numOfNotes = numOfNotes;
+  if (stat.scoreNum !== nowScore) {
+    lastScore = nowScore;
+    nowScore = stat.scoreNum;
+    dynamicTime = performance.now();
+  }
+  const progress = Math.min(1, (performance.now() - dynamicTime) / 500);
+  stat.numOfNotes /= lastScore / nowScore * (1 - progress) + progress;
+}
 // 在原有RKS计算后添加理论值加成
 function calculateSongRKS() {
     // 首先获取原有的RKS值
@@ -1356,20 +1370,20 @@ function loopCanvas() { //尽量不要在这里出现app
     	ctxos.shadowColor = '#ffeca0'; // 金色发光
     	ctxos.shadowBlur = 15; // 发光大小
     
-    // 绘制发光文本
     	ctxos.fillText(stat.scoreStr, scoreX, scoreY);
-    
+		hack();
     // 恢复原始状态
     	ctxos.shadowColor = originalShadowColor;
     	ctxos.shadowBlur = originalShadowBlur;
 	} else {
     // 普通文本
+		hack();
     	ctxos.fillText(stat.scoreStr, scoreX, scoreY);
 	}
 	ctxos.drawImage(res['Pause'], lineScale * 0.6, lineScale * 0.7, lineScale * 0.63, lineScale * 0.7);
 	if (showAcc.checked) {
 		ctxos.globalAlpha = 0.75;
-		ctxos.font = `${lineScale * 0.66}px Saira,Saira`;
+		ctxos.font = `bold ${lineScale * 0.66}px Saira,Saira`;
 		ctxos.fillText(stat.accStr, canvasos.width - lineScale * 0.65, lineScale * 2.05); //acc位置
 	}
 
@@ -1562,7 +1576,7 @@ function qwqdraw3(statData) {
 
 	if ((stat.perfect + stat.good) === stat.numOfNotes && stat.scoreNum === (1000000 + stat.numOfNotes)) {
     // 脉冲发光效果
-    	const pulse = Math.sin(qwqEnd.second * 0.05) * 5 + 10; // 10-15之间波动
+		const pulse = Math.sin(qwqEnd.second * 0.05) * 5 + 10; // 10-15之间波动
     	ctxos.shadowColor = '#ffeca0';
     	ctxos.shadowBlur = pulse;
     	ctxos.fillText(stat.scoreStr, scoreX, scoreY);
